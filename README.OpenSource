@@ -1,0 +1,17 @@
+{
+  "projectName": "cangjie-contest-dashboard",
+  "projectType": "Web工具",
+  "description": "仓颉生态创新开发挑战赛参赛作品：推荐命题数据看板，展示各推荐命题的已报名团队数与提交作品数量，供参赛者选题参考",
+  "repository": "https://atomgit.com/gcw_r6OMdBYH/cangjie-contest-dashboard",
+  "liveDemo": "https://wanglin1111111.github.io/cj-dashboard/",
+  "license": "MIT",
+  "licenseFile": "LICENSE",
+  "softwareDependencies": [
+    {"name": "无第三方运行时依赖（纯静态 HTML + 原生 JavaScript）", "version": "-", "license": "-"}
+  ],
+  "dataSources": [
+    {"name": "scoreboard.atomgit.com 官方接口", "url": "https://scoreboard.atomgit.com/api/dashboard/summary", "usage": "报名/提交数据快照（data/tasks.json）"}
+  ],
+  "cangjieRelation": "面向仓颉生态创新开发挑战赛的社区工具：汇总官方推荐命题（技术课题 9 项 + 三方库 73 项）的报名与提交热度，降低参赛者选题信息成本",
+  "maintainer": "gcw_r6OMdBYH"
+}
