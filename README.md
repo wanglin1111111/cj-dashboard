@@ -2,6 +2,11 @@
 
 大赛作业：推荐命题数据看板——可查看各推荐命题的**已报名团队数**与**提交作品数量**，供参赛者选题时参考。
 
+## 在线访问
+
+- GitHub Pages（推荐，代理/直连均可）：<https://wanglin1111111.github.io/cj-dashboard/>
+- Surge 镜像（国内直连可用）：<https://cj-dashboard.surge.sh/>
+
 ## 在线数据源
 
 - 官方看板：<https://scoreboard.atomgit.com/>
