@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>仓颉生态创新开发挑战赛 · 推荐命题数据看板</title>
+<style>
+  :root {
+    --bg: #0f1222;
+    --card: #1a1f36;
+    --accent: #5b8cff;
+    --accent2: #35d0a5;
+    --text: #e8eaf2;
+    --muted: #9aa3b8;
+    --border: #2a3050;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; padding: 32px 24px; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 26px; margin-bottom: 6px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .metric { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .metric .num { font-size: 32px; font-weight: 700; color: var(--accent); }
+  .metric.green .num { color: var(--accent2); }
+  .metric .label { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .search { width: 100%; padding: 12px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 15px; margin-bottom: 20px; }
+  .filters { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .filters button { background: var(--card); color: var(--muted); border: 1px solid var(--border); border-radius: 20px; padding: 7px 18px; cursor: pointer; font-size: 14px; }
+  .filters button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
+  th { color: var(--muted); font-weight: 500; font-size: 13px; }
+  tr:hover td { background: rgba(91,140,255,0.06); }
+  .bar { height: 8px; border-radius: 4px; background: var(--accent); min-width: 4px; }
+  .bar.sub { background: var(--accent2); }
+  .barwrap { width: 120px; }
+  .num-col { font-variant-numeric: tabular-nums; }
+  .hot { color: #ff9f5b; font-weight: 600; }
+  .footer { color: var(--muted); font-size: 12px; margin-top: 24px; text-align: center; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>仓颉生态创新开发挑战赛 · 推荐命题数据看板</h1>
+  <p class="sub">各推荐命题的已报名团队数与提交作品数，供参赛者选题时参考 · 数据来源 scoreboard.atomgit.com</p>
+
+  <div class="metrics" id="metrics"></div>
+
+  <input class="search" id="search" placeholder="搜索命题名称…" />
+
+  <div class="filters" id="filters">
+    <button data-type="全部" class="active">全部</button>
+    <button data-type="技术课题">技术课题</button>
+    <button data-type="三方库">三方库</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th style="width:36px">#</th><th>命题</th><th>类型</th><th>报名团队</th><th class="barwrap">报名热度</th><th>已提交</th><th class="barwrap">提交进度</th></tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <p class="footer" id="footer"></p>
+</div>
+
+<script>
+const TASKS_URL = 'data/tasks.json';
+let all = [];
+
+async function load() {
+  try {
+    const res = await fetch(TASKS_URL);
+    const data = await res.json();
+    all = data.tasks || [];
+    render();
+  } catch (e) {
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="7">数据加载失败：' + e.message + '</td></tr>';
+  }
+}
+
+function render() {
+  const kw = document.getElementById('search').value.trim().toLowerCase();
+  const type = document.querySelector('.filters button.active').dataset.type;
+  let rows = all.filter(t => type === '全部' || t.type === type);
+  if (kw) rows = rows.filter(t => (t.project_name || '').toLowerCase().includes(kw));
+  rows.sort((a, b) => b.participating - a.participating || b.submitted - a.submitted);
+
+  const maxP = Math.max(1, ...rows.map(t => t.participating));
+  document.getElementById('tbody').innerHTML = rows.map((t, i) => {
+    const pRate = t.participating ? Math.round(t.submitted / t.participating * 100) : 0;
+    return `<tr>
+      <td class="num-col">${i + 1}</td>
+      <td>${esc(t.project_name || '(未命名)')}</td>
+      <td>${esc(t.type)}</td>
+      <td class="num-col ${t.participating >= 4 ? 'hot' : ''}">${t.participating}</td>
+      <td><div class="bar" style="width:${Math.round(t.participating / maxP * 100)}%"></div></td>
+      <td class="num-col">${t.submitted} <span style="color:var(--muted);font-size:12px">(${pRate}%)</span></td>
+      <td><div class="bar sub" style="width:${pRate}%"></div></td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--muted)">无匹配命题</td></tr>';
+
+  const tc = all.filter(t => t.type === '技术课题');
+  const lib = all.filter(t => t.type === '三方库');
+  const sum = (l, k) => l.reduce((s, t) => s + t[k], 0);
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric"><div class="num">${tc.length + lib.length}</div><div class="label">推荐命题总数</div></div>
+    <div class="metric"><div class="num">${sum(all, 'participating')}</div><div class="label">推荐命题报名团队</div></div>
+    <div class="metric green"><div class="num">${sum(all, 'submitted')}</div><div class="label">推荐命题提交作品</div></div>
+    <div class="metric"><div class="num">${tc.length}</div><div class="label">技术课题数（报名 ${sum(tc, 'participating')} / 提交 ${sum(tc, 'submitted')}）</div></div>
+    <div class="metric"><div class="num">${lib.length}</div><div class="label">三方库数（报名 ${sum(lib, 'participating')} / 提交 ${sum(lib, 'submitted')}）</div></div>`;
+  document.getElementById('footer').textContent = '数据快照更新于 ' + (data.updated_at || '—');
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('filters').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  render();
+});
+load();
+</script>
+</body>
+</html>
