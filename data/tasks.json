@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-24T08:36:21.166Z",
+  "updated_at": "2026-09-24T09:29:09.038Z",
   "tasks": [
     {
       "seq": 1,
@@ -726,7 +726,7 @@
       "recommendation_index": "3",
       "main_deliverables": "",
       "key_acceptance_criteria": "",
-      "participating": 0,
+      "participating": 1,
       "submitted": 0
     },
     {
