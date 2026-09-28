@@ -69,15 +69,17 @@
 <script>
 const TASKS_URL = 'data/tasks.json';
 let all = [];
+let updatedAt = '';
 
 async function load() {
   try {
     const res = await fetch(TASKS_URL);
     const data = await res.json();
     all = data.tasks || [];
+    updatedAt = data.updated_at || '';
     render();
   } catch (e) {
-    document.getElementById('tbody').innerHTML = '<tr><td colspan="7">数据加载失败：' + e.message + '</td></tr>';
+    document.getElementById('tbody').innerHTML = '<tr><td colspan="7">数据加载失败：' + esc(e.message) + '</td></tr>';
   }
 }
 
@@ -111,7 +113,7 @@ function render() {
     <div class="metric green"><div class="num">${sum(all, 'submitted')}</div><div class="label">推荐命题提交作品</div></div>
     <div class="metric"><div class="num">${tc.length}</div><div class="label">技术课题数（报名 ${sum(tc, 'participating')} / 提交 ${sum(tc, 'submitted')}）</div></div>
     <div class="metric"><div class="num">${lib.length}</div><div class="label">三方库数（报名 ${sum(lib, 'participating')} / 提交 ${sum(lib, 'submitted')}）</div></div>`;
-  document.getElementById('footer').textContent = '数据快照更新于 ' + (data.updated_at || '—');
+  document.getElementById('footer').textContent = '数据快照更新于 ' + (updatedAt || '—');
 }
 
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
